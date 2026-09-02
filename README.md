@@ -6,10 +6,9 @@ Interactive dot-matrix repulsion animation built with SwiftUI and SpriteKit. A g
 
 > Touch/drag anywhere on screen → dots within ~120pt radius are repelled → spring physics returns them smoothly when released.
 
-```
-<img width="580" height="1106" alt="ScreenRecording2026-09-02at2 53 01PM-ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/45533f5b-a2bd-4c67-8f60-22b1965b780b" />
+<img width="580" height="1106" alt="ScreenRecording2026-09-02at2 53 01PM-ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/b87bc172-6e40-41a8-bc27-fabbb83c702a" />
 
-```
+
 
 ## Features
 
