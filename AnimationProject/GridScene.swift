@@ -19,8 +19,8 @@ class GridScene:SKScene {
         backgroundColor = .black
         createRepulsionNode()
         createDotMatrix()
-        
     }
+    
     private func createRepulsionNode() {
         fieldNode = SKFieldNode.radialGravityField()
         fieldNode.strength = -6.0
@@ -60,7 +60,7 @@ class GridScene:SKScene {
 
                 // Spring code
                 let joint = SKPhysicsJointSpring.joint(withBodyA: body, bodyB: anchorBody, anchorA: dot.position, anchorB: dot.position)
-                joint.frequency = 2.5
+                joint.frequency = 1.5
                 joint.damping = 0.5
                 physicsWorld.add(joint)
             }
