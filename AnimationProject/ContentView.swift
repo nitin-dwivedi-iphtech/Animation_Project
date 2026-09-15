@@ -4,21 +4,17 @@
 //
 //  Created by iPHTech 40 on 02/09/26.
 //
-
 import SwiftUI
+import SpriteKit
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
+    @StateObject private var sceneHolder = SceneHolder()
 
-#Preview {
-    ContentView()
+    var body: some View {
+        GeometryReader { proxy in
+            SpriteView(scene: sceneHolder.getScene(size: proxy.size))
+                .ignoresSafeArea()
+        }
+        .background(Color.black)
+    }
 }
