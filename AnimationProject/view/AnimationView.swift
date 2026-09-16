@@ -1,5 +1,5 @@
 //
-//  TableObject.swift
+//  AnimationView.swift
 //  AnimationProject
 //
 //  Created by iPHTech 40 on 15/09/26.
@@ -9,20 +9,24 @@ import SwiftUI
 struct AnimationView: View, CustomAnimations {
     
     @State var progress: CGFloat = 0.0
+    @State var stage2Progress:CGFloat = 0.0
     @State var outerSlideWidth: CGFloat = 0
     @State var outerSlideHeight: CGFloat = 0
     @State var startSlideWidth: CGFloat = 20.0
     @State var startSlideHeight: CGFloat = 180.0
     @State var bottomCircleWidth: CGFloat = 10.0
     @State var bottomCircleHeight: CGFloat = 10.0
+    @State private var isRotating1 = false
+    @State private var isRotating2 = false
+    @State private var showOuterCircle = true
+    @State private var showInnerCircle = false
     @State var showCircle: Bool = false
     @State var stage: Int = 0
     
     var body: some View {
         
+        sideSlideView
         VStack(spacing: 0) {
-            
-            sideSlideView
             
             Rectangle()
                 .fill(Color("DarkBrown"))
@@ -78,6 +82,10 @@ struct AnimationView: View, CustomAnimations {
                 y: lerp(from: 0, to: 148)
             )
         }
+        .scaleEffect(stage == 2 ? (1.0 - stage2Progress) : 1.0)
+        .rotationEffect(
+            stage == 2 ? .degrees(Double(stage2Progress * -45)) : .degrees(0)
+        )
         .onAppear {
             withAnimation(.spring(response: 1.8, dampingFraction: 0.75)
                 .delay(0.5)
@@ -89,126 +97,209 @@ struct AnimationView: View, CustomAnimations {
     
     @ViewBuilder
     private var sideSlideView: some View {
-        HStack(spacing: 300) {
-            VStack(spacing: 0) {
-                Rectangle()
-                    .fill(Color.white)
-                    .frame(
-                        width: lerp(from: startSlideWidth, to: outerSlideWidth),
-                        height: lerp(from: startSlideHeight, to: outerSlideHeight)
-                    )
-                    .rotationEffect(stage == 1 ? .degrees(lerp(from: 30, to: -12)) : .degrees(0.0), anchor: .topLeading)
-                    .overlay {
-                        Rectangle()
-                            .fill(Color.white)
-                            .frame(
-                                width: lerp(from: startSlideWidth, to: outerSlideWidth),
-                                height: lerp(from: startSlideHeight, to: outerSlideHeight)
-                            )
-                            .rotationEffect(.degrees(lerp(from: 30, to: -30)), anchor: .topLeading)
-                            .offset(x: -22, y: -5)
-                            .opacity(stage == 1 ? 1 : 0)
-                            .overlay {
-                                Rectangle()
-                                    .fill(Color.white)
-                                    .frame(
-                                        width: lerp(from: startSlideWidth, to: outerSlideWidth),
-                                        height: lerp(from: startSlideHeight, to: outerSlideHeight)
-                                    )
-                                    .rotationEffect(.degrees(lerp(from: 30, to: -50)), anchor: .topLeading)
-                                    .offset(x: -30, y: 10)
-                                    .opacity(stage == 1 ? 1 : 0)
-                            }
-                    }
-                
-                Circle()
-                    .fill(.white)
-                    .frame(width: lerp(from: 0, to: bottomCircleWidth), height: lerp(from: 0, to: bottomCircleHeight))
-                    .opacity(showCircle ? 1.0 : 0.0)
-            }
-            
-            VStack(spacing: 0) {
-                Rectangle()
-                    .fill(Color.white)
-                    .frame(
-                        width: lerp(from: startSlideWidth, to: outerSlideWidth),
-                        height: lerp(from: startSlideHeight, to: outerSlideHeight)
-                    )
-                    .rotationEffect(stage == 1 ? .degrees(lerp(from: -30, to: 12)) : .degrees(0.0), anchor: .topTrailing)
-                    .overlay {
-                        Rectangle()
-                            .fill(Color.white)
-                            .frame(
-                                width: lerp(from: startSlideWidth, to: outerSlideWidth),
-                                height: lerp(from: startSlideHeight, to: outerSlideHeight)
-                            )
-                            .rotationEffect(.degrees(lerp(from: -30, to: 30)), anchor: .topTrailing)
-                            .offset(x: 22, y: -5)
-                            .opacity(stage == 1 ? 1 : 0)
-                            .overlay {
-                                Rectangle()
-                                    .fill(Color.white)
-                                    .frame(
-                                        width: lerp(from: startSlideWidth, to: outerSlideWidth),
-                                        height: lerp(from: startSlideHeight, to: outerSlideHeight)
-                                    )
-                                    .rotationEffect(.degrees(lerp(from: -30, to: 50)), anchor: .topTrailing)
-                                    .offset(x: 30, y: 10)
-                                    .opacity(stage == 1 ? 1 : 0)
-                            }
-                    }
-                
-                Circle()
-                    .fill(.white)
-                    .frame(width: lerp(from: 0, to: bottomCircleWidth), height: lerp(from: 0, to: bottomCircleHeight))
-                    .opacity(showCircle ? 1.0 : 0.0)
-            }
-        }
-        .opacity(progress)
-        .offset(y: lerp(from: 0, to: 240))
-        .onChange(of: progress) { _, newValue in
-            guard newValue == 1.0 else { return }
-            
-            Task { @MainActor in
-                try? await Task.sleep(for: .seconds(0.8))
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
-                    showCircle = true
+        if stage == 0 || stage == 1 {
+            HStack(spacing: 300) {
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(Color.white)
+                        .frame(
+                            width: lerp(from: startSlideWidth, to: outerSlideWidth),
+                            height: lerp(from: startSlideHeight, to: outerSlideHeight)
+                        )
+                        .rotationEffect(stage == 1 ? .degrees(lerp(from: 30, to: -12)) : .degrees(0.0), anchor: .topLeading)
+                        .overlay {
+                            Rectangle()
+                                .fill(Color.white)
+                                .frame(
+                                    width: lerp(from: startSlideWidth, to: outerSlideWidth),
+                                    height: lerp(from: startSlideHeight, to: outerSlideHeight)
+                                )
+                                .rotationEffect(.degrees(lerp(from: 30, to: -30)), anchor: .topLeading)
+                                .offset(x: -22, y: -5)
+                                .opacity(stage == 1 ? 1 : 0)
+                                .overlay {
+                                    Rectangle()
+                                        .fill(Color.white)
+                                        .frame(
+                                            width: lerp(from: startSlideWidth, to: outerSlideWidth),
+                                            height: lerp(from: startSlideHeight, to: outerSlideHeight)
+                                        )
+                                        .rotationEffect(.degrees(lerp(from: 30, to: -50)), anchor: .topLeading)
+                                        .offset(x: -30, y: 10)
+                                        .opacity(stage == 1 ? 1 : 0)
+                                }
+                        }
+                    
+                    Circle()
+                        .fill(.white)
+                        .frame(width: lerp(from: 0, to: bottomCircleWidth), height: lerp(from: 0, to: bottomCircleHeight))
+                        .opacity(showCircle ? 1.0 : 0.0)
                 }
                 
-                try? await Task.sleep(for: .seconds(0.6))
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    stage = 1
-                    outerSlideWidth = 4.0
-                    outerSlideHeight = 18.5
-                    showCircle = false
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(Color.white)
+                        .frame(
+                            width: lerp(from: startSlideWidth, to: outerSlideWidth),
+                            height: lerp(from: startSlideHeight, to: outerSlideHeight)
+                        )
+                        .rotationEffect(stage == 1 ? .degrees(lerp(from: -30, to: 12)) : .degrees(0.0), anchor: .topTrailing)
+                        .overlay {
+                            Rectangle()
+                                .fill(Color.white)
+                                .frame(
+                                    width: lerp(from: startSlideWidth, to: outerSlideWidth),
+                                    height: lerp(from: startSlideHeight, to: outerSlideHeight)
+                                )
+                                .rotationEffect(.degrees(lerp(from: -30, to: 30)), anchor: .topTrailing)
+                                .offset(x: 22, y: -5)
+                                .opacity(stage == 1 ? 1 : 0)
+                                .overlay {
+                                    Rectangle()
+                                        .fill(Color.white)
+                                        .frame(
+                                            width: lerp(from: startSlideWidth, to: outerSlideWidth),
+                                            height: lerp(from: startSlideHeight, to: outerSlideHeight)
+                                        )
+                                        .rotationEffect(.degrees(lerp(from: -30, to: 50)), anchor: .topTrailing)
+                                        .offset(x: 30, y: 10)
+                                        .opacity(stage == 1 ? 1 : 0)
+                                }
+                        }
+                    
+                    Circle()
+                        .fill(.white)
+                        .frame(width: lerp(from: 0, to: bottomCircleWidth), height: lerp(from: 0, to: bottomCircleHeight))
+                        .opacity(showCircle ? 1.0 : 0.0)
                 }
+            }
+            .opacity(progress)
+            .offset(y: lerp(from: 0, to: 240))
+            .onChange(of: progress) { _, newValue in
+                guard newValue == 1.0 else { return }
                 
-                try? await Task.sleep(for: .seconds(0.5))
-                withAnimation(.easeOut(duration: 0.2)) {
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(0.8))
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                        showCircle = true
+                    }
+                    
+                    try? await Task.sleep(for: .seconds(0.6))
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        stage = 1
+                        outerSlideWidth = 4.0
+                        outerSlideHeight = 18.5
+                        showCircle = false
+                    }
+                    
+                    try? await Task.sleep(for: .seconds(0.5))
                     
                     stage = 2
-                    outerSlideWidth = 0.0
-                    outerSlideHeight = 0.0
-                }
-                
-                try? await Task.sleep(for: .seconds(0.5))
-                var transaction = Transaction()
-                transaction.disablesAnimations = true
-                withTransaction(transaction) {
-                    progress = 0.0
-                    stage = 0
-                    showCircle = false
-                }
-                
-                try? await Task.sleep(for: .seconds(0.4))
-                withAnimation(.spring(response: 1.8, dampingFraction: 0.75)) {
-                    progress = 1.0
+                    stage2Progress = 0.0
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        stage2Progress = 1.0
+                        outerSlideWidth = 0.0
+                        outerSlideHeight = 0.0
+                    }
+                    
+                    try? await Task.sleep(for: .milliseconds(350))
+                    var transaction = Transaction()
+                    transaction.disablesAnimations = true
+                    withTransaction(transaction) {
+                        progress = 0.0
+                        stage = 0
+                        showCircle = false
+    
+                        isRotating1 = false
+                        isRotating2 = false
+                        stage2Progress = 0.0
+                    }
+                    
+                    try? await Task.sleep(for: .seconds(0.4))
+                    withAnimation(.spring(response: 1.8, dampingFraction: 0.75)) {
+                        progress = 1.0
+                    }
                 }
             }
+        } else {
+            loadingBorderView
+                .frame(width: 260, height: 320)
+                .transition(.opacity)
+        }
+    }
+    
+    private var loadingBorderView: some View {
+        ZStack {
+            Circle()
+                .trim(from: 0.0, to: 0.7)
+                .stroke(
+                    Color.white,
+                    style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                )
+                .frame(width: 350, height: 350)
+                .rotationEffect(.degrees(isRotating1 ? 360 : 0))
+                .opacity(showOuterCircle ? 1.0 : 0.0)
+                
+            Circle()
+                .trim(from: 0.0, to: 0.5)
+                .stroke(
+                    Color.white,
+                    style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                )
+                .frame(width: 280, height: 280)
+                .rotationEffect(.degrees(isRotating2 ? 720 : 0))
+                .opacity(showInnerCircle ? 1.0 : 0.0)
+        }
+        .onAppear {
+            Task {@MainActor in
+                await startSequentialRotation()
+            }
+        }
+        .onDisappear {
+            resetRotationStates()
+        }
+    }
+
+    private func resetRotationStates() {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            showOuterCircle = true
+            showInnerCircle = false
+            isRotating1 = false
+            isRotating2 = false
+        }
+    }
+    
+    @MainActor
+    private func startSequentialRotation() async {
+        resetRotationStates()
+        
+        try? await Task.sleep(for: .milliseconds(50))
+        
+        withAnimation(.linear(duration: 0.35)) {
+            isRotating1 = true
+        }
+        
+        try? await Task.sleep(for: .milliseconds(150))
+        
+        var swapTransaction = Transaction()
+        swapTransaction.disablesAnimations = true
+        withTransaction(swapTransaction) {
+            showOuterCircle = false
+            showInnerCircle = true
+        }
+        
+        withAnimation(.linear(duration: 0.35)) {
+            isRotating2 = true
         }
     }
 }
 
 #Preview {
-    AnimationView()
+    ZStack {
+        Color.yellow
+            .ignoresSafeArea()
+        AnimationView()
+    }
 }
