@@ -91,7 +91,7 @@ struct LampView: View {
                         progress = 1.0
                     }
                     
-                    try? await Task.sleep(for: .seconds(0.7))
+                    try? await Task.sleep(for: .seconds(0.8))
                     
                     await waveLamp()
                     
@@ -121,12 +121,12 @@ struct LampView: View {
         isWaving = true
         
         withAnimation(.easeInOut(duration: 0.6)) {
-            waveAngle = -18.0
+            waveAngle = 18.0
         }
         try? await Task.sleep(for: .seconds(0.6))
         
         withAnimation(.easeInOut(duration: 0.9)) {
-            waveAngle = 18.0
+            waveAngle = -18.0
         }
         try? await Task.sleep(for: .seconds(0.9))
         
