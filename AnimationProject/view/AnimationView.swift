@@ -26,6 +26,9 @@ struct AnimationView: View, CustomAnimations {
     var body: some View {
         
         sideSlideView
+        
+        LampView(previousProgress: $progress, stage2Progress: $stage2Progress,  stage: $stage)
+        
         VStack(spacing: 0) {
             
             Rectangle()
@@ -203,22 +206,14 @@ struct AnimationView: View, CustomAnimations {
                     }
                     
                     try? await Task.sleep(for: .milliseconds(350))
-                    var transaction = Transaction()
-                    transaction.disablesAnimations = true
-                    withTransaction(transaction) {
-                        progress = 0.0
-                        stage = 0
-                        showCircle = false
-    
+                    
+                    withAnimation(.easeOut(duration: 1.5)) {
+                        showOuterCircle = false
+                        showInnerCircle = false
                         isRotating1 = false
                         isRotating2 = false
-                        stage2Progress = 0.0
                     }
                     
-                    try? await Task.sleep(for: .seconds(0.4))
-                    withAnimation(.spring(response: 1.8, dampingFraction: 0.75)) {
-                        progress = 1.0
-                    }
                 }
             }
         } else {
